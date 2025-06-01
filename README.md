@@ -1,50 +1,218 @@
-# Welcome to your Expo app 👋
+# dripsy-variants
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Variant utility for Dripsy** – A lightweight helper to build style variants and compound variants using `sx` props.
 
-## Get started
+> Inspired by Tailwind Variants and styled-system patterns.
 
-1. Install dependencies
+## ✨ Features
 
-   ```bash
-   npm install
-   ```
+- ✅ Define `base` styles
+- ✅ Support for multiple `variants`
+- ✅ Support for `compoundVariants`
+- ✅ `defaultVariants` handling
+- ✅ Type-safe with full TypeScript support
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## 📦 Installation
 
 ```bash
-npm run reset-project
+npm install dripsy-variants
+# or
+yarn add dripsy-variants
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+> Make sure you also have `dripsy` installed.
 
-## Learn more
+## 🚀 Usage
 
-To learn more about developing your project with Expo, look at the following resources:
+```typescript
+import { createDripsyVariant } from "dripsy-variants";
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+const getButtonStyles = createDripsyVariant({
+  base: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  variants: {
+    variant: {
+      primary: { backgroundColor: "#0F0F0F" },
+      secondary: { backgroundColor: "#E8E8E8" },
+      link: { backgroundColor: "transparent" },
+    },
+    size: {
+      md: { py: "$1_5", px: "$2", borderRadius: 16 },
+      sm: { py: "$1", px: "$2", borderRadius: 12 },
+    },
+    disabled: {
+      true: {},
+      false: {},
+    },
+    pressed: {
+      true: {},
+      false: {},
+    },
+  },
+  compoundVariants: [
+    {
+      pressed: ["true"],
+      variant: ["primary"],
+      sx: { backgroundColor: "#454545" },
+    },
+    {
+      pressed: ["true"],
+      variant: ["secondary"],
+      sx: { backgroundColor: "#D3D3D3" },
+    },
+    {
+      disabled: ["true"],
+      variant: ["primary"],
+      sx: { backgroundColor: "#F3F3F3" },
+    },
+    {
+      disabled: ["true"],
+      variant: ["secondary"],
+      sx: { backgroundColor: "#F3F3F3" },
+    },
+  ],
+  defaultVariants: {
+    variant: "primary",
+    size: "md",
+  },
+});
 
-## Join the community
+const getTextStyles = createSxVariant({
+  base: {
+    textAlign: "center",
+    flex: 1,
+  },
+  variants: {
+    variant: {
+      primary: { color: "$white" },
+      secondary: { color: "#2A2E2F" },
+      link: { color: "#2A2E2F" },
+    },
+    size: {
+      md: { variant: "text.$buttonMd" },
+      sm: { variant: "text.$buttonSm" },
+    },
+    disabled: {
+      true: {},
+      false: {},
+    },
+    pressed: {
+      true: {},
+      false: {},
+    },
+  },
+  compoundVariants: [
+    {
+      disabled: ["true"],
+      variant: ["primary"],
+      sx: { color: "#A8A8A8" },
+    },
+    {
+      disabled: ["true"],
+      variant: ["secondary"],
+      sx: { color: "#D3D3D3" },
+    },
+    {
+      disabled: ["true"],
+      variant: ["link"],
+      sx: { color: "#A8A8A8" },
+    },
+  ],
+  defaultVariants: {
+    variant: "primary",
+    size: "md",
+  },
+});
 
-Join our community of developers creating universal apps.
+// Usage
+export const Button = ({
+  title,
+  onPress = () => {},
+  icon,
+  isLoading = false,
+  disabled = false,
+  sx = {},
+  variant = "primary",
+  size = "md",
+}: ButtonProps) => {
+  const sxConverter = useSx();
+  const { theme } = useDripsyTheme();
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+  return (
+    <Pressable
+      disabled={isLoading || disabled}
+      onPress={onPress}
+      style={({ pressed }) =>
+        sxConverter({
+          ...getButtonStyles({
+            variant,
+            size,
+            pressed: pressed ? "true" : "false",
+            disabled: disabled ? "true" : "false",
+          }),
+          ...sx,
+        })
+      }
+    >
+      {({ pressed }) => {
+        const textStyles = getTextStyles({
+          variant,
+          size,
+          disabled: disabled ? "true" : "false",
+          pressed: pressed ? "true" : "false",
+        });
+
+        const colorToken = textStyles.color as keyof typeof theme.colors;
+        const resolvedColor = theme.colors?.[colorToken] ?? colorToken;
+
+        const renderedIcon = enhanceIconElement(icon, {
+          color: resolvedColor,
+          size: 16,
+        });
+
+        return (
+          <>
+            <View sx={{ width: 20 }}>{isLoading && <Spinner />}</View>
+            <Text sx={textStyles}>{title}</Text>
+            <View sx={{ width: 20 }}>{icon && renderedIcon}</View>
+          </>
+        );
+      }}
+    </Pressable>
+  );
+};
+```
+
+## 🧠 API Reference
+
+### `createDripsyVariant(config)`
+
+#### `config.base?: SxProp`
+
+Base styles applied to all variants.
+
+#### `config.variants?: Record<string, Record<string, SxProp>>`
+
+Object containing named variants (like `variant`, `size`, etc.).
+
+#### `config.defaultVariants?: { [K in keyof Variants]?: keyof Variants[K] }`
+
+Default values used when no variant prop is passed.
+
+#### `config.compoundVariants?: CompoundVariant[]`
+
+List of compound variant conditions to apply extra styles based on a combination of variant values.
+
+Each `CompoundVariant` is:
+
+{
+sx: SxProp;
+[key: string]: string[]; // matches variant keys and values
+}
+
+## 🪪 License
+
+MIT License © 2025 Axel Valles
