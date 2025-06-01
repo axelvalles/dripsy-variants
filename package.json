@@ -1,5 +1,5 @@
 {
-  "name": "dripsy-variants",
+  "name": "dripsy-variants-monorepo",
   "private": true,
   "scripts": {
     "build": "turbo run build",

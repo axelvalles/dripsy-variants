@@ -1,0 +1,57 @@
+{
+  "name": "@repo/dripsy-variants",
+  "version": "1.0.2",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "dripsy",
+    "variants",
+    "compound variants",
+    "react native",
+    "sx",
+    "design system",
+    "tailwind",
+    "style variants",
+    "ui utility",
+    "react"
+  ],
+  "author": "axel valles",
+  "license": "MIT",
+  "description": "Utility to create style variants and compound variants for Dripsy.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axelvalles/dripsy-variants.git"
+  },
+  "homepage": "https://github.com/axelvalles/dripsy-variants#readme",
+  "bugs": {
+    "url": "https://github.com/axelvalles/dripsy-variants/issues"
+  },
+  "peerDependencies": {
+    "dripsy": "*",
+    "react": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/*"
+      ]
+    }
+  }
+}
